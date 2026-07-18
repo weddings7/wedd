@@ -25,8 +25,9 @@ body {
   min-width: 320px;
   color: var(--ink);
   background: #d8c0bc;
-  font-family: "Cairo", sans-serif;
-  -webkit-font-smoothing: antialiased;
+  font-family: "Amiri", serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
 }
 
 button,
