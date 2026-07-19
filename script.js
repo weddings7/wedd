@@ -44,61 +44,31 @@ document.addEventListener("DOMContentLoaded", () => {
   updateCountdown();
   setInterval(updateCountdown, 1000);
 
-  // 3. Web Audio API Music
+  // 3. Real MP3 Audio Control
   const musicToggleBtn = document.getElementById('music-toggle-btn');
   const musicIconContainer = document.getElementById('music-icon-container');
   const musicText = document.getElementById('music-text');
-  
-  let audioContext = null;
-  let musicPlaying = false;
-  let musicTimer = null;
+  const weddingAudio = document.getElementById('wedding-audio');
 
-  const playNote = (context, frequency, delay) => {
-    const oscillator = context.createOscillator();
-    const gain = context.createGain();
-    const start = context.currentTime + delay;
-
-    oscillator.type = 'sine';
-    oscillator.frequency.value = frequency;
-    gain.gain.setValueAtTime(0, start);
-    gain.gain.linearRampToValueAtTime(0.035, start + 0.18);
-    gain.gain.exponentialRampToValueAtTime(0.001, start + 2.8);
-    oscillator.connect(gain);
-    gain.connect(context.destination);
-    oscillator.start(start);
-    oscillator.stop(start + 3);
-  };
-
-  const playMusicPhrase = (context) => {
-    const phrase = [523.25, 659.25, 783.99, 659.25];
-    phrase.forEach((frequency, index) => {
-      playNote(context, frequency, index * 1.45);
+  if (musicToggleBtn && weddingAudio) {
+    musicToggleBtn.addEventListener('click', () => {
+      if (!weddingAudio.paused) {
+        // Pause the MP3
+        weddingAudio.pause();
+        
+        musicToggleBtn.classList.remove('is-playing');
+        musicText.innerText = 'تشغيل الموسيقى';
+        musicIconContainer.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><line x1="23" x2="17" y1="9" y2="15"/><line x1="17" x2="23" y1="9" y2="15"/></svg>';
+      } else {
+        // Play the MP3
+        weddingAudio.play().catch(error => {
+          console.error("Audio playback failed:", error);
+        });
+        
+        musicToggleBtn.classList.add('is-playing');
+        musicText.innerText = 'الموسيقى تعمل';
+        musicIconContainer.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="8" cy="18" r="4"/><path d="M12 18V2l7 4"/></svg>';
+      }
     });
-  };
-
-  musicToggleBtn.addEventListener('click', async () => {
-    if (musicPlaying) {
-      if (musicTimer) clearInterval(musicTimer);
-      musicTimer = null;
-      if (audioContext) await audioContext.suspend();
-      musicPlaying = false;
-      
-      musicToggleBtn.classList.remove('is-playing');
-      musicText.innerText = 'تشغيل الموسيقى';
-      musicIconContainer.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><line x1="23" x2="17" y1="9" y2="15"/><line x1="17" x2="23" y1="9" y2="15"/></svg>';
-      return;
-    }
-
-    const AudioContextClass = window.AudioContext || window.webkitAudioContext;
-    if (!audioContext) audioContext = new AudioContextClass();
-    
-    await audioContext.resume();
-    playMusicPhrase(audioContext);
-    musicTimer = setInterval(() => playMusicPhrase(audioContext), 6200);
-    musicPlaying = true;
-    
-    musicToggleBtn.classList.add('is-playing');
-    musicText.innerText = 'الموسيقى تعمل';
-    musicIconContainer.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="8" cy="18" r="4"/><path d="M12 18V2l7 4"/></svg>';
-  });
+  }
 });
